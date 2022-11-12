@@ -1,7 +1,7 @@
 FROM public.ecr.aws/lambda/python:3.8
 
 # Copy function code
-COPY create-data-app.py ${LAMBDA_TASK_ROOT}
+COPY ./create-data-app/create-data-app.py ${LAMBDA_TASK_ROOT}
 
 COPY requirements.txt ${LAMBDA_TASK_ROOT}
 
