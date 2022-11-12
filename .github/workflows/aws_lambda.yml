@@ -32,9 +32,8 @@ jobs:
 
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
-        with:
-          context: ./create-data-app
-          file: ./create-data-app/Dockerfile
+      with:
+        context: ./create-data-app
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: nfl-create-data
