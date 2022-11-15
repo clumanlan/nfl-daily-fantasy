@@ -250,6 +250,18 @@ def create_weekly_player_stats(df, rel_num_cols):
     return df
 
 
+def merge_data(weekly_stats_team, weekly_stats_pos, weekly_stats_team_pos, weekly_stats_player, weekly_team_schedule):
+    
+    processed_df = weekly_stats_player.merge(weekly_stats_team_pos, on=['season', 'week', 'team', 'position_group'])
+    processed_df = processed_df.merge(weekly_stats_pos, on=['season', 'week', 'position_group'])
+    processed_df = processed_df.merge(weekly_stats_team, on=['season', 'week', 'team'])
+
+    processed_df.dropna(how='any', inplace=True) # we lose a lot of data due to players playing single games and all week 1 (due to lag) and 2 (due to aggregation) stats
+    processed_df['season'] = processed_df['season'].astype('int')
+    processed_df = processed_df.merge(weekly_team_schedule, on=['team', 'season', 'week'])
+
+    return processed_df
+
 def write_data_to_s3(weekly_stats_player_qb, weekly_stats_player_position):
 
     current_date = datetime.date.today().strftime('%Y-%m-%d')
@@ -295,8 +307,11 @@ weekly_stats_team_position = create_weekly_team_position_stats(weekly_player_sta
 weekly_stats_player_qb = create_weekly_player_stats(weekly_player_stats_qb, weekly_player_cols_num_qb)
 weekly_stats_player_position = create_weekly_player_stats(weekly_player_stats_position, weekly_player_cols_num_position)
 
-write_data_to_s3(weekly_stats_player_qb, weekly_stats_player_position)
+weekly_team_schedule_processed = process_team_schedule(weekly_team_schedule)
 
+
+
+write_data_to_s3(weekly_stats_player_qb, weekly_stats_player_position)
 
 
 def handler (event, context):
@@ -319,7 +334,7 @@ def handler (event, context):
 
     weekly_stats_player_qb = create_weekly_player_stats(weekly_player_stats_qb, weekly_player_cols_num_qb)
     weekly_stats_player_position = create_weekly_player_stats(weekly_player_stats_position, weekly_player_cols_num_position)
-    
+
     write_data_to_s3(weekly_stats_player_qb, weekly_stats_player_position)
 
 
