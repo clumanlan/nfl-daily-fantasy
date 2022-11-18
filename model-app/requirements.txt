@@ -1,0 +1,7 @@
+awswrangler==2.17.0
+boto3==1.26.10
+mlflow==1.30.0
+pandas==1.5.1
+cloudpickle==2.2.0
+psutil==5.9.4
+scikit-learn==1.1.3
