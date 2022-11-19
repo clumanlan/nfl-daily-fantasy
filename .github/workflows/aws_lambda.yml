@@ -34,7 +34,8 @@ jobs:
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: nfl-create-data
+        ECR_REPOSITORY_CREATE: nfl-create-data
+        ECR_REPOSITORY_MODEL: nfl-fantasy-model
       run: |
         # Build a docker container and
         # push it to ECR so that it can
@@ -43,41 +44,23 @@ jobs:
             --build-arg AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             --build-arg AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             --build-arg AWS_DEFAULT_REGION="${{ env.AWS_DEFAULT_REGION }}" \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.ECR_IMAGE_TAG }} .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.ECR_IMAGE_TAG }}
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.ECR_IMAGE_TAG }}"
-    - name: Deploy to AWS Lambda
-      run: |
-        aws lambda update-function-code \
-        --function-name ${{ env.AWS_LAMBDA_FUNC_NAME }} \
-        --image-uri "${{ secrets.AWS_ECR_IMAGE_URI_CREATE_DATA }}:${{ env.ECR_IMAGE_TAG }}"
-      env:
-        AWS_LAMBDA_FUNC_NAME: nfl-create-data
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
-        
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: nfl-fantasy-model
-      run: |
-        # Build a docker container and
-        # push it to ECR so that it can
-        # be deployed to AWS lambda.
+            -t $ECR_REGISTRY/$ECR_REPOSITORY_CREATE:${{ env.ECR_IMAGE_TAG }} .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_CREATE:${{ env.ECR_IMAGE_TAG }}
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY_CREATE:${{ env.ECR_IMAGE_TAG }}"
         docker build --file ./model-app/Dockerfile \
             --build-arg AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             --build-arg AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             --build-arg AWS_DEFAULT_REGION="${{ env.AWS_DEFAULT_REGION }}" \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.ECR_IMAGE_TAG }} .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.ECR_IMAGE_TAG }}
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.ECR_IMAGE_TAG }}"
+            -t $ECR_REGISTRY/$ECR_REPOSITORY_MODEL:${{ env.ECR_IMAGE_TAG }} .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_MODEL:${{ env.ECR_IMAGE_TAG }}
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY_MODEL:${{ env.ECR_IMAGE_TAG }}"
     - name: Deploy to AWS Lambda
       run: |
         aws lambda update-function-code \
-        --function-name ${{ env.AWS_LAMBDA_FUNC_NAME }} \
-        --image-uri "${{ secrets.AWS_ECR_IMAGE_URI_NFL_FANTASY_MODEL }}:${{ env.ECR_IMAGE_TAG }}"
+        --function-name ${{ env.AWS_LAMBDA_FUNC_NAME_CREATE }} \
+        --image-uri "${{ secrets.AWS_ECR_IMAGE_URI_CREATE_DATA }}:${{ env.ECR_IMAGE_TAG }}"
       env:
-        AWS_LAMBDA_FUNC_NAME: nfl-create-data
+        AWS_LAMBDA_FUNC_NAME_CREATE: nfl-create-data
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
