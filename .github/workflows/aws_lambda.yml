@@ -59,8 +59,12 @@ jobs:
         aws lambda update-function-code \
         --function-name ${{ env.AWS_LAMBDA_FUNC_NAME_CREATE }} \
         --image-uri "${{ secrets.AWS_ECR_IMAGE_URI_CREATE_DATA }}:${{ env.ECR_IMAGE_TAG }}"
+        aws lambda update-function-code \
+        --function-name ${{ env.AWS_LAMBDA_FUNC_NAME_MODEL }} \
+        --image-uri "${{ secrets.AWS_ECR_IMAGE_URI_NFL_FANTASY_MODEL }}:${{ env.ECR_IMAGE_TAG }}"
       env:
         AWS_LAMBDA_FUNC_NAME_CREATE: nfl-create-data
+        AWS_LAMBDA_FUNC_NAME_MODEL: nfl-fantasy-model
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
