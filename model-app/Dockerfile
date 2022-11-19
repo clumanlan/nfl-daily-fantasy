@@ -4,7 +4,7 @@ FROM public.ecr.aws/lambda/python:3.8
 COPY ./model-app/model-app.py ${LAMBDA_TASK_ROOT}
 
 # Avoid cache purge by adding requirements first
-COPY requirements.txt ${LAMBDA_TASK_ROOT}
+COPY ./model-app/requirements.txt ${LAMBDA_TASK_ROOT}
 
 RUN pip install --no-cache-dir -r requirements.txt
 
